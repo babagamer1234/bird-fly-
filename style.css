@@ -1,0 +1,10 @@
+:root{--bg:#70c5ce;--sky:#4ec0ca;--card:rgba(255,255,255,0.95)}
+body {margin: 0; background: var(--bg); font-family: system-ui, sans-serif;}
+.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column}
+#gameCanvas{background:var(--sky);display:block;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+.overlay{position: absolute; top:0; left:0; right:0; bottom:0; display:flex;align-items:center;justify-content:center;pointer-events:auto;}
+.screen{width:420px; max-width:90%; background:var(--card); padding:20px;border-radius:12px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.12)}
+.btn{display:inline-block;padding:10px 18px;margin:8px;border-radius:8px;background:#1e90ff;color:white;text-decoration:none;cursor:pointer;border:none}
+.btn.secondary{background:#6c757d}
+.small{font-size:14px;color:#333}
+#hud{position:fixed;left:16px;top:16px;background:rgba(255,255,255,0.9);padding:8px 12px;border-radius:8px}
