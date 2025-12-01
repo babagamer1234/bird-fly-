@@ -3,126 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flappy Game</title>
+<title>Bird Game</title>
 <style>
-  body { margin:0; overflow:hidden; background:#70c5ce; font-family:Arial; }
-  #gameCanvas { background:#70c5ce; display:block; margin:0 auto; }
-  #gameOverBtn {
-    position:absolute;
-    top:50%; left:50%; transform:translate(-50%, -50%);
-    padding:18px 35px; font-size:24px; border:none;
-    background:#ff5050; color:white; border-radius:12px;
-    cursor:pointer; display:none;
-    z-index:9999;
-  }
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-image: url('https://i.ibb.co/Zj13FDV/bird-background.jpg'); /* Background image */
+        background-size: cover;
+        background-position: center;
+    }
+    #gameCanvas {
+        display: block;
+        margin: 0 auto;
+        background: transparent;
+    }
+    #restartBtn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 10px 20px;
+        font-size: 20px;
+        display: none;
+    }
 </style>
 </head>
 <body>
-<button id="gameOverBtn">Game Over - Restart</button>
-<canvas id="gameCanvas" width="420" height="600"></canvas>
+
+<audio id="bgSong" src="https://files.catbox.moe/vivxn0.mp3" loop></audio>
+<audio id="gameOverSong" src="https://files.catbox.moe/vivxn0.mp3"></audio> <!-- replace with 2nd song link -->
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<button id="restartBtn">Restart</button>
+
 <script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-// CHANGE THESE AFTER YOU SEND DIRECT LINKS
-const BIRD_IMG = "https://i.ibb.co/PvhB0NQ9/Screenshot-2025-11-30-165334.png";
-const PILLAR_IMG = "https://i.ibb.co/bjPywQps/Screenshot-2025-11-30-165710.png";
+const bgSong = document.getElementById('bgSong');
+const gameOverSong = document.getElementById('gameOverSong');
+const restartBtn = document.getElementById('restartBtn');
 
-const birdImg = new Image(); birdImg.src = BIRD_IMG;
-const pipeImg = new Image(); pipeImg.src = PILLAR_IMG;
-
-let bird = { x:60, y:250, width:40, height:35, gravity:0.35, velocity:0, jump:-6 }; 
-let pipes = [];
-let frames = 0;
-let score = 0;
 let gameOver = false;
-let running = true;
 
-function drawBird(){ ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height); }
-function drawPipes(){
-  pipes.forEach(p => {
-    ctx.drawImage(pipeImg, p.x, p.y, p.width, p.height);
-  });
+// Start game
+function startGame() {
+    gameOver = false;
+    restartBtn.style.display = 'none';
+    bgSong.play();
+    gameLoop();
 }
 
-function spawnPipe(){
-  let gap = 150;
-  let topHeight = Math.random()*250 + 50;
-  pipes.push({ x:430, y:0, width:70, height:topHeight, passed:false });
-  pipes.push({ x:430, y:topHeight+gap, width:70, height:600-(topHeight+gap), passed:false });
+// Game loop
+function gameLoop() {
+    if (gameOver) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // yaha tumhara game draw/update code aayega
+
+    requestAnimationFrame(gameLoop);
 }
 
-function collides(p){
-  return bird.x < p.x + p.width && bird.x + bird.width > p.x && bird.y < p.y + p.height && bird.y + bird.height > p.y;
+// Game over
+function endGame() {
+    gameOver = true;
+    bgSong.pause();
+    bgSong.currentTime = 0;
+    gameOverSong.play();
+    restartBtn.style.display = 'block';
 }
 
-function update(){
-  if(!running) return;
-  frames++;
-
-  bird.velocity += bird.gravity;
-  bird.y += bird.velocity;
-
-  if(frames%90===0) spawnPipe();
-
-  for(let i=pipes.length-1;i>=0;i--){
-    pipes[i].x -= 2.5;
-    if(!pipes[i].passed && pipes[i].x + pipes[i].width < bird.x){ score++; pipes[i].passed = true; }
-    if(pipes[i].x + pipes[i].width < -50) pipes.splice(i,1);
-    if(collides(pipes[i])) endGame();
-  }
-
-  if(bird.y + bird.height > 600 || bird.y < 0){ endGame(); }
-}
-
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  drawPipes();
-  drawBird();
-}
-
-function gameLoop(){
-  update();
-  draw();
-  requestAnimationFrame(gameLoop);
-}
-
-document.addEventListener("keydown", () => {
-  if(!gameOver) bird.velocity = bird.jump;
-  const bgm = document.getElementById("bgm");
-  bgm.play().catch(()=>{});
-});
-document.addEventListener("mousedown", () => {
-  if(!gameOver) bird.velocity = bird.jump;
-  const bgm = document.getElementById("bgm");
-  bgm.play().catch(()=>{});
+// Restart game
+restartBtn.addEventListener('click', () => {
+    gameOverSong.pause();
+    gameOverSong.currentTime = 0;
+    startGame();
 });
 
-document.getElementById("gameOverBtn").onclick = () => {
-  const bgm = document.getElementById("bgm");
-  bgm.play().catch(()=>{});
-  resetGame();
-};
+// Example: trigger game over after 10 seconds (testing)
+setTimeout(endGame, 10000);
 
-function endGame(){ gameOver = true; running = false; document.getElementById("gameOverBtn").style.display = "block"; }
-
-function resetGame(){
-  bird.y = 250; bird.velocity = 0;
-  pipes = []; frames = 0; score = 0;
-  gameOver = false; running = true;
-  const bgm = document.getElementById("bgm");
-  bgm.play().catch(()=>{});
-  document.getElementById("gameOverBtn").style.display = "none";
-}
-
-gameLoop();
-
-// Try to start audio on first load
-setTimeout(()=>{
-  const bgm=document.getElementById('bgm');
-  bgm.play().catch(()=>{});
-},500);
+startGame();
 </script>
-<audio id="bgm" src="https://files.catbox.moe/vivxn0.mp3" preload="auto"></audio></audio>
+
 </body>
 </html>
