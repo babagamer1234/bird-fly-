@@ -106,11 +106,19 @@ function resetGame(){
   bird.y = 250; bird.velocity = 0;
   pipes = []; frames = 0; score = 0;
   gameOver = false; running = true;
+  const bgm = document.getElementById("bgm");
+  bgm.play().catch(()=>{});
   document.getElementById("gameOverBtn").style.display = "none";
 }
 
 gameLoop();
+
+// Try to start audio on first load
+setTimeout(()=>{
+  const bgm=document.getElementById('bgm');
+  bgm.play().catch(()=>{});
+},500);
 </script>
-<audio id="bgm" src="videoplayback.m4a" loop></audio>
+<audio id="bgm" src="./videoplayback.m4a" preload="auto"></audio></audio>
 </body>
 </html>
