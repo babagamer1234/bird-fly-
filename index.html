@@ -12,6 +12,7 @@
         background-image: url('https://i.ibb.co/Zj13FDV/bird-background.jpg'); /* Background image */
         background-size: cover;
         background-position: center;
+        font-family: sans-serif;
     }
     #gameCanvas {
         display: block;
@@ -26,13 +27,14 @@
         padding: 10px 20px;
         font-size: 20px;
         display: none;
+        cursor: pointer;
     }
 </style>
 </head>
 <body>
 
 <audio id="bgSong" src="https://files.catbox.moe/vivxn0.mp3" loop></audio>
-<audio id="gameOverSong" src="https://files.catbox.moe/vivxn0.mp3"></audio> <!-- replace with 2nd song link -->
+<audio id="gameOverSong" src="https://files.catbox.moe/vivxn0.mp3"></audio> <!-- Replace with 2nd song -->
 
 <canvas id="gameCanvas" width="800" height="600"></canvas>
 <button id="restartBtn">Restart</button>
@@ -45,27 +47,35 @@ const bgSong = document.getElementById('bgSong');
 const gameOverSong = document.getElementById('gameOverSong');
 const restartBtn = document.getElementById('restartBtn');
 
+const birdImg = new Image();
+birdImg.src = 'https://ibb.co/Zj13FDV'; // bird image link
+const pillarImg = new Image();
+pillarImg.src = 'https://ibb.co/PKtvTXQ'; // pillar image link
+
+let bird = { x: 100, y: 300, width: 50, height: 50, dy: 0 };
+let gravity = 0.5;
+let jump = -10;
+let pillars = [];
+let frame = 0;
 let gameOver = false;
 
-// Start game
+// Controls
+document.addEventListener('keydown', e => {
+    if (e.code === 'Space') bird.dy = jump;
+});
+document.addEventListener('click', () => bird.dy = jump);
+
+// Game functions
 function startGame() {
     gameOver = false;
     restartBtn.style.display = 'none';
+    bird = { x: 100, y: 300, width: 50, height: 50, dy: 0 };
+    pillars = [];
+    frame = 0;
     bgSong.play();
     gameLoop();
 }
 
-// Game loop
-function gameLoop() {
-    if (gameOver) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // yaha tumhara game draw/update code aayega
-
-    requestAnimationFrame(gameLoop);
-}
-
-// Game over
 function endGame() {
     gameOver = true;
     bgSong.pause();
@@ -74,16 +84,69 @@ function endGame() {
     restartBtn.style.display = 'block';
 }
 
-// Restart game
+// Restart
 restartBtn.addEventListener('click', () => {
     gameOverSong.pause();
     gameOverSong.currentTime = 0;
     startGame();
 });
 
-// Example: trigger game over after 10 seconds (testing)
-setTimeout(endGame, 10000);
+// Pillar creation
+function createPillars() {
+    let gap = 150;
+    let topHeight = Math.floor(Math.random() * 300) + 50;
+    let bottomHeight = canvas.height - topHeight - gap;
+    pillars.push({
+        x: canvas.width,
+        topY: 0,
+        topHeight: topHeight,
+        bottomY: topHeight + gap,
+        bottomHeight: bottomHeight,
+        width: 80
+    });
+}
 
+// Collision detection
+function checkCollision(b, p) {
+    return (
+        b.x < p.x + p.width &&
+        b.x + b.width > p.x &&
+        (b.y < p.topY + p.topHeight || b.y + b.height > p.bottomY)
+    );
+}
+
+// Game loop
+function gameLoop() {
+    if (gameOver) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Bird
+    bird.dy += gravity;
+    bird.y += bird.dy;
+    ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+
+    // Pillars
+    if (frame % 100 === 0) createPillars();
+    for (let i = 0; i < pillars.length; i++) {
+        let p = pillars[i];
+        p.x -= 3;
+        ctx.drawImage(pillarImg, p.x, p.topY, p.width, p.topHeight);
+        ctx.drawImage(pillarImg, p.x, p.bottomY, p.width, p.bottomHeight);
+
+        if (checkCollision(bird, p)) endGame();
+    }
+    // Remove off-screen pillars
+    pillars = pillars.filter(p => p.x + p.width > 0);
+
+    // Ground/ceiling collision
+    if (bird.y + bird.height > canvas.height || bird.y < 0) endGame();
+
+    frame++;
+    requestAnimationFrame(gameLoop);
+}
+
+// Start the game initially
 startGame();
 </script>
 
