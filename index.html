@@ -9,7 +9,7 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background-image: url('https://i.ibb.co/Zj13FDV/bird-background.jpg'); /* Background image */
+        background-image: url('https://i.ibb.co/8cQ6wsk/background.jpg'); /* Simple background */
         background-size: cover;
         background-position: center;
         font-family: sans-serif;
@@ -25,16 +25,19 @@
         left: 50%;
         transform: translate(-50%, -50%);
         padding: 10px 20px;
-        font-size: 20px;
+        font-size: 24px;
         display: none;
         cursor: pointer;
+        background: rgba(255,255,255,0.8);
+        border: none;
+        border-radius: 10px;
     }
 </style>
 </head>
 <body>
 
 <audio id="bgSong" src="https://files.catbox.moe/vivxn0.mp3" loop></audio>
-<audio id="gameOverSong" src="https://files.catbox.moe/vivxn0.mp3"></audio> <!-- Replace with 2nd song -->
+<audio id="gameOverSong" src="https://files.catbox.moe/vivxn0.mp3"></audio>
 
 <canvas id="gameCanvas" width="800" height="600"></canvas>
 <button id="restartBtn">Restart</button>
@@ -47,10 +50,11 @@ const bgSong = document.getElementById('bgSong');
 const gameOverSong = document.getElementById('gameOverSong');
 const restartBtn = document.getElementById('restartBtn');
 
+// Exact resources
 const birdImg = new Image();
-birdImg.src = 'https://ibb.co/Zj13FDV'; // bird image link
+birdImg.src = 'https://i.ibb.co/Zj13FDV/bird.png';
 const pillarImg = new Image();
-pillarImg.src = 'https://ibb.co/PKtvTXQ'; // pillar image link
+pillarImg.src = 'https://i.ibb.co/PKtvTXQ/pillar.png';
 
 let bird = { x: 100, y: 300, width: 50, height: 50, dy: 0 };
 let gravity = 0.5;
@@ -65,17 +69,20 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('click', () => bird.dy = jump);
 
-// Game functions
+// Start game
 function startGame() {
     gameOver = false;
     restartBtn.style.display = 'none';
     bird = { x: 100, y: 300, width: 50, height: 50, dy: 0 };
     pillars = [];
     frame = 0;
+    gameOverSong.pause();
+    gameOverSong.currentTime = 0;
     bgSong.play();
     gameLoop();
 }
 
+// End game
 function endGame() {
     gameOver = true;
     bgSong.pause();
@@ -84,17 +91,13 @@ function endGame() {
     restartBtn.style.display = 'block';
 }
 
-// Restart
-restartBtn.addEventListener('click', () => {
-    gameOverSong.pause();
-    gameOverSong.currentTime = 0;
-    startGame();
-});
+// Restart button
+restartBtn.addEventListener('click', startGame);
 
 // Pillar creation
 function createPillars() {
     let gap = 150;
-    let topHeight = Math.floor(Math.random() * 300) + 50;
+    let topHeight = Math.floor(Math.random() * 250) + 50;
     let bottomHeight = canvas.height - topHeight - gap;
     pillars.push({
         x: canvas.width,
@@ -121,7 +124,7 @@ function gameLoop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Bird
+    // Bird physics
     bird.dy += gravity;
     bird.y += bird.dy;
     ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
@@ -136,17 +139,16 @@ function gameLoop() {
 
         if (checkCollision(bird, p)) endGame();
     }
-    // Remove off-screen pillars
     pillars = pillars.filter(p => p.x + p.width > 0);
 
-    // Ground/ceiling collision
+    // Ground & ceiling
     if (bird.y + bird.height > canvas.height || bird.y < 0) endGame();
 
     frame++;
     requestAnimationFrame(gameLoop);
 }
 
-// Start the game initially
+// Start game on load
 startGame();
 </script>
 
