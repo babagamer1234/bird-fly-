@@ -9,7 +9,7 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background-image: url('https://i.ibb.co/0yXMTCBD/Screenshot-2025-12-01-202101.png'); /* Simple background */
+        background-image: url('https://i.ibb.co/0yXMTCBD/Screenshot-2025-12-01-202101.png');
         background-size: cover;
         background-position: center;
         font-family: sans-serif;
@@ -50,7 +50,7 @@ const bgSong = document.getElementById('bgSong');
 const gameOverSong = document.getElementById('gameOverSong');
 const restartBtn = document.getElementById('restartBtn');
 
-// Exact resources
+// Images
 const birdImg = new Image();
 birdImg.src = 'https://i.ibb.co/Zj13FDV/bird.png';
 const pillarImg = new Image();
@@ -61,44 +61,69 @@ let gravity = 0.5;
 let jump = -10;
 let pillars = [];
 let frame = 0;
-let gameOver = false;
+let isGameOver = false;
+let hasStarted = false;
 
-// Controls
+// JUMP controls
 document.addEventListener('keydown', e => {
     if (e.code === 'Space') bird.dy = jump;
 });
-document.addEventListener('click', () => bird.dy = jump);
 
-// Start game
+document.addEventListener('click', () => {
+    bird.dy = jump;
+
+    // First click → start game + bg music
+    if (!hasStarted) {
+        hasStarted = true;
+        startGame();
+    }
+});
+
+// Start Game
 function startGame() {
-    gameOver = false;
+    isGameOver = false;
     restartBtn.style.display = 'none';
+
     bird = { x: 100, y: 300, width: 50, height: 50, dy: 0 };
     pillars = [];
     frame = 0;
+
     gameOverSong.pause();
     gameOverSong.currentTime = 0;
-    bgSong.play();
+
+    // Play background song safely
+    bgSong.currentTime = 0;
+    bgSong.play().catch(err => console.log("Autoplay blocked:", err));
+
     gameLoop();
 }
 
-// End game
+// Game Over
 function endGame() {
-    gameOver = true;
+    if (isGameOver) return;
+    isGameOver = true;
+
     bgSong.pause();
     bgSong.currentTime = 0;
+
+    gameOverSong.currentTime = 0;
     gameOverSong.play();
+
     restartBtn.style.display = 'block';
 }
 
-// Restart button
-restartBtn.addEventListener('click', startGame);
+// Restart Button
+restartBtn.addEventListener('click', () => {
+    hasStarted = true;  
+    startGame();
+});
 
-// Pillar creation
+// Pillars
 function createPillars() {
     let gap = 150;
     let topHeight = Math.floor(Math.random() * 250) + 50;
     let bottomHeight = canvas.height - topHeight - gap;
+
     pillars.push({
         x: canvas.width,
         topY: 0,
@@ -109,7 +134,7 @@ function createPillars() {
     });
 }
 
-// Collision detection
+// Collision
 function checkCollision(b, p) {
     return (
         b.x < p.x + p.width &&
@@ -118,38 +143,38 @@ function checkCollision(b, p) {
     );
 }
 
-// Game loop
+// Game Loop
 function gameLoop() {
-    if (gameOver) return;
+    if (isGameOver) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Bird physics
+    // Bird
     bird.dy += gravity;
     bird.y += bird.dy;
     ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
 
     // Pillars
     if (frame % 100 === 0) createPillars();
+
     for (let i = 0; i < pillars.length; i++) {
         let p = pillars[i];
         p.x -= 3;
+
         ctx.drawImage(pillarImg, p.x, p.topY, p.width, p.topHeight);
         ctx.drawImage(pillarImg, p.x, p.bottomY, p.width, p.bottomHeight);
 
         if (checkCollision(bird, p)) endGame();
     }
+
     pillars = pillars.filter(p => p.x + p.width > 0);
 
-    // Ground & ceiling
+    // Ground + Ceiling
     if (bird.y + bird.height > canvas.height || bird.y < 0) endGame();
 
     frame++;
     requestAnimationFrame(gameLoop);
 }
-
-// Start game on load
-startGame();
 </script>
 
 </body>
