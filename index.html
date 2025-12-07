@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bird Game</title>
 
-<!-- REQUIRED FOR GOOGLE ADSENSE -->
-<meta name="google-adsense-account" content="ca-pub-6255468902751815">
-
-<!-- GOOGLE ADSENSE SCRIPT (CORRECT VERSION) -->
+<!-- GOOGLE ADSENSE SCRIPT (once at top) -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6255468902751815"
      crossorigin="anonymous"></script>
 
@@ -26,6 +23,7 @@
     #gameCanvas {
         display: block;
         margin: 0 auto;
+        background: transparent;
     }
     #restartBtn {
         position: absolute;
@@ -39,26 +37,27 @@
         background: rgba(255,255,255,0.9);
         border: none;
         border-radius: 12px;
+        z-index: 10;
     }
     .adBox {
         width: 100%;
         text-align: center;
-        margin-top: 10px;
+        margin: 10px 0;
     }
 </style>
 </head>
 <body>
 
-<!-- TOP AD BOX -->
+<!-- 1st Ad -->
 <div class="adBox">
     <ins class="adsbygoogle"
-        style="display:block"
-        data-ad-client="ca-pub-6255468902751815"
-        data-ad-slot="1234567890"  <!-- Replace with your real slot -->
-        data-ad-format="auto"
-        data-full-width-responsive="true"></ins>
+         style="display:block"
+         data-ad-client="ca-pub-6255468902751815"
+         data-ad-slot="9223202134"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
     <script>
-         (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
 </div>
 
@@ -69,6 +68,19 @@
 <!-- CANVAS -->
 <canvas id="gameCanvas" width="800" height="600"></canvas>
 <button id="restartBtn">Restart</button>
+
+<!-- 2nd Ad -->
+<div class="adBox">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-6255468902751815"
+         data-ad-slot="3623213486"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
@@ -91,15 +103,9 @@ let frame = 0;
 let isGameOver = false;
 let hasStarted = false;
 
-// Space key jump
-document.addEventListener('keydown', e => {
-    if (e.code === 'Space') bird.dy = jump;
-});
-
-// Click jump
-document.addEventListener('mousedown', startJump);
-
+// Jump on space, click or touch
 function startJump() {
+    if (!bird) return;
     bird.dy = jump;
 
     if (!hasStarted) {
@@ -107,6 +113,10 @@ function startJump() {
         startGame();
     }
 }
+
+document.addEventListener('keydown', e => { if(e.code==='Space') startJump(); });
+document.addEventListener('mousedown', startJump);
+document.addEventListener('touchstart', startJump);
 
 // Start Game
 function startGame() {
@@ -131,7 +141,6 @@ function endGame() {
     if (isGameOver) return;
 
     isGameOver = true;
-
     bgSong.pause();
     gameOverSong.currentTime = 0;
     gameOverSong.play();
@@ -184,7 +193,6 @@ function gameLoop() {
 
     for (let p of pillars) {
         p.x -= 3;
-
         ctx.drawImage(pillarImg, p.x, p.topY, p.width, p.topHeight);
         ctx.drawImage(pillarImg, p.x, p.bottomY, p.width, p.bottomHeight);
 
