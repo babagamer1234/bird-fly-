@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bird Game</title>
 
-<!-- GOOGLE ADSENSE SCRIPT -->
+<!-- REQUIRED FOR GOOGLE ADSENSE -->
+<meta name="google-adsense-account" content="ca-pub-6255468902751815">
+
+<!-- GOOGLE ADSENSE SCRIPT (CORRECT VERSION) -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6255468902751815"
      crossorigin="anonymous"></script>
 
@@ -18,24 +21,24 @@
         background-size: cover;
         background-position: center;
         font-family: sans-serif;
+        user-select: none;
     }
     #gameCanvas {
         display: block;
         margin: 0 auto;
-        background: transparent;
     }
     #restartBtn {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        padding: 10px 20px;
-        font-size: 24px;
+        padding: 14px 30px;
+        font-size: 28px;
         display: none;
         cursor: pointer;
-        background: rgba(255,255,255,0.8);
+        background: rgba(255,255,255,0.9);
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
     }
     .adBox {
         width: 100%;
@@ -46,12 +49,12 @@
 </head>
 <body>
 
-<!-- TOP AD -->
+<!-- TOP AD BOX -->
 <div class="adBox">
     <ins class="adsbygoogle"
         style="display:block"
         data-ad-client="ca-pub-6255468902751815"
-        data-ad-slot="1234567890"
+        data-ad-slot="1234567890"  <!-- Replace with your real slot -->
         data-ad-format="auto"
         data-full-width-responsive="true"></ins>
     <script>
@@ -59,9 +62,11 @@
     </script>
 </div>
 
+<!-- AUDIO -->
 <audio id="bgSong" src="https://files.catbox.moe/30yynd.mp3" loop></audio>
 <audio id="gameOverSong" src="https://files.catbox.moe/wiujni.mp3"></audio>
 
+<!-- CANVAS -->
 <canvas id="gameCanvas" width="800" height="600"></canvas>
 <button id="restartBtn">Restart</button>
 
@@ -76,31 +81,32 @@ const restartBtn = document.getElementById('restartBtn');
 // Images
 const birdImg = new Image();
 birdImg.src = 'https://i.ibb.co/Zj13FDV/bird.png';
+
 const pillarImg = new Image();
 pillarImg.src = 'https://i.ibb.co/PKtvTXQ/pillar.png';
 
-let bird = { x: 100, y: 300, width: 50, height: 50, dy: 0 };
-let gravity = 0.5;
-let jump = -10;
+let bird, gravity = 0.5, jump = -10;
 let pillars = [];
 let frame = 0;
 let isGameOver = false;
 let hasStarted = false;
 
-// JUMP controls
+// Space key jump
 document.addEventListener('keydown', e => {
     if (e.code === 'Space') bird.dy = jump;
 });
 
-document.addEventListener('click', () => {
+// Click jump
+document.addEventListener('mousedown', startJump);
+
+function startJump() {
     bird.dy = jump;
 
-    // First click → start game + bg music
     if (!hasStarted) {
         hasStarted = true;
         startGame();
     }
-});
+}
 
 // Start Game
 function startGame() {
@@ -114,9 +120,8 @@ function startGame() {
     gameOverSong.pause();
     gameOverSong.currentTime = 0;
 
-    // Play background song safely
     bgSong.currentTime = 0;
-    bgSong.play().catch(err => console.log("Autoplay blocked:", err));
+    bgSong.play().catch(err => console.log("Autoplay blocked"));
 
     gameLoop();
 }
@@ -124,11 +129,10 @@ function startGame() {
 // Game Over
 function endGame() {
     if (isGameOver) return;
+
     isGameOver = true;
 
     bgSong.pause();
-    bgSong.currentTime = 0;
-
     gameOverSong.currentTime = 0;
     gameOverSong.play();
 
@@ -137,11 +141,11 @@ function endGame() {
 
 // Restart Button
 restartBtn.addEventListener('click', () => {
-    hasStarted = true;  
+    hasStarted = true;
     startGame();
 });
 
-// Pillars
+// Create Pillars
 function createPillars() {
     let gap = 150;
     let topHeight = Math.floor(Math.random() * 250) + 50;
@@ -157,7 +161,7 @@ function createPillars() {
     });
 }
 
-// Collision
+// Collision Check
 function checkCollision(b, p) {
     return (
         b.x < p.x + p.width &&
@@ -172,16 +176,13 @@ function gameLoop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Bird
     bird.dy += gravity;
     bird.y += bird.dy;
     ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
 
-    // Pillars
     if (frame % 100 === 0) createPillars();
 
-    for (let i = 0; i < pillars.length; i++) {
-        let p = pillars[i];
+    for (let p of pillars) {
         p.x -= 3;
 
         ctx.drawImage(pillarImg, p.x, p.topY, p.width, p.topHeight);
@@ -192,7 +193,6 @@ function gameLoop() {
 
     pillars = pillars.filter(p => p.x + p.width > 0);
 
-    // Ground + Ceiling
     if (bird.y + bird.height > canvas.height || bird.y < 0) endGame();
 
     frame++;
