@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bird Game</title>
 
-<!-- GOOGLE ADSENSE SCRIPT (once at top) -->
+<!-- Google AdSense Script -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6255468902751815"
      crossorigin="anonymous"></script>
 
@@ -20,11 +20,13 @@
         font-family: sans-serif;
         user-select: none;
     }
+
     #gameCanvas {
         display: block;
         margin: 0 auto;
         background: transparent;
     }
+
     #restartBtn {
         position: absolute;
         top: 50%;
@@ -39,6 +41,7 @@
         border-radius: 12px;
         z-index: 10;
     }
+
     .adBox {
         width: 100%;
         text-align: center;
@@ -48,7 +51,7 @@
 </head>
 <body>
 
-<!-- 1st Ad -->
+<!-- 1st Ad Unit -->
 <div class="adBox">
     <ins class="adsbygoogle"
          style="display:block"
@@ -61,15 +64,15 @@
     </script>
 </div>
 
-<!-- AUDIO -->
+<!-- Audio -->
 <audio id="bgSong" src="https://files.catbox.moe/30yynd.mp3" loop></audio>
 <audio id="gameOverSong" src="https://files.catbox.moe/wiujni.mp3"></audio>
 
-<!-- CANVAS -->
+<!-- Game Canvas -->
 <canvas id="gameCanvas" width="800" height="600"></canvas>
 <button id="restartBtn">Restart</button>
 
-<!-- 2nd Ad -->
+<!-- 2nd Ad Unit -->
 <div class="adBox">
     <ins class="adsbygoogle"
          style="display:block"
@@ -90,7 +93,6 @@ const bgSong = document.getElementById('bgSong');
 const gameOverSong = document.getElementById('gameOverSong');
 const restartBtn = document.getElementById('restartBtn');
 
-// Images
 const birdImg = new Image();
 birdImg.src = 'https://i.ibb.co/Zj13FDV/bird.png';
 
@@ -103,7 +105,7 @@ let frame = 0;
 let isGameOver = false;
 let hasStarted = false;
 
-// Jump on space, click or touch
+// Jump handler
 function startJump() {
     if (!bird) return;
     bird.dy = jump;
@@ -148,13 +150,13 @@ function endGame() {
     restartBtn.style.display = 'block';
 }
 
-// Restart Button
+// Restart button
 restartBtn.addEventListener('click', () => {
     hasStarted = true;
     startGame();
 });
 
-// Create Pillars
+// Create pillars
 function createPillars() {
     let gap = 150;
     let topHeight = Math.floor(Math.random() * 250) + 50;
@@ -170,7 +172,7 @@ function createPillars() {
     });
 }
 
-// Collision Check
+// Collision
 function checkCollision(b, p) {
     return (
         b.x < p.x + p.width &&
