@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simple Bird Game with Ads</title>
+<title>Simple Bird Game</title>
 
-<!-- Google AdSense Script (only once) -->
+<!-- ✅ Google AdSense Script -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6255468902751815"
      crossorigin="anonymous"></script>
 
@@ -17,65 +17,63 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-family: sans-serif;
+    font-family: Arial, sans-serif;
   }
+
+  h1 {
+    margin: 15px 0;
+    color: #fff;
+  }
+
   canvas {
     background: #87ceeb;
     display: block;
+    border-radius: 10px;
   }
+
   #restartBtn {
     padding: 12px 24px;
-    font-size: 24px;
+    font-size: 22px;
     display: none;
     cursor: pointer;
-    background: white;
+    background: #fff;
     border: none;
     border-radius: 8px;
-    margin-top: 10px;
+    margin-top: 15px;
   }
-  .adBox {
-    width: 100%;
-    text-align: center;
+
+  .ad-box {
     margin: 10px 0;
+    width: 100%;
+    max-width: 728px;
   }
 </style>
 </head>
+
 <body>
 
-<!-- Top Ad -->
-<div class="adBox">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-6255468902751815"
-         data-ad-slot="3623213486"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
+<h1>Simple Bird Game</h1>
+
+<!-- ✅ AdSense Banner Ad -->
+<div class="ad-box">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6255468902751815"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
 </div>
 
-<!-- Game Canvas -->
 <canvas id="gameCanvas" width="600" height="400"></canvas>
 <button id="restartBtn">Restart</button>
 
-<!-- Bottom Ad -->
-<div class="adBox">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-6255468902751815"
-         data-ad-slot="9223202134"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-</div>
-
 <script>
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const restartBtn = document.getElementById('restartBtn');
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const restartBtn = document.getElementById("restartBtn");
 
 let bird, pillars, gravity, jump, frame, isGameOver;
 
@@ -83,75 +81,80 @@ function initGame() {
   bird = { x: 100, y: 200, width: 30, height: 30, dy: 0 };
   pillars = [];
   gravity = 0.5;
-  jump = -10;
+  jump = -8;
   frame = 0;
   isGameOver = false;
-  restartBtn.style.display = 'none';
-  gameLoop();
+  restartBtn.style.display = "none";
 }
 
-// Jump handler
-function jumpBird() {
-  bird.dy = jump;
-}
-document.addEventListener('keydown', e => { if(e.code==='Space') jumpBird(); });
-document.addEventListener('mousedown', jumpBird);
-document.addEventListener('touchstart', jumpBird);
-
-// Restart button
-restartBtn.addEventListener('click', initGame);
-
-// Create pillars
-function createPillars() {
-  let gap = 120;
-  let topHeight = Math.floor(Math.random() * 150) + 50;
-  let bottomHeight = canvas.height - topHeight - gap;
-  pillars.push({ x: canvas.width, topY:0, topHeight, bottomY: topHeight+gap, bottomHeight, width:50 });
-}
-
-// Collision check
-function checkCollision(b, p) {
-  return b.x < p.x + p.width && b.x + b.width > p.x &&
-         (b.y < p.topY + p.topHeight || b.y + b.height > p.bottomY);
-}
-
-// Game loop
-function gameLoop() {
-  if(isGameOver) return;
-  
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // Bird movement
-  bird.dy += gravity;
-  bird.y += bird.dy;
+function drawBird() {
   ctx.fillStyle = "yellow";
   ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+}
 
-  // Pillars
-  if(frame % 90 === 0) createPillars();
-  for(let p of pillars){
-    p.x -= 3;
-    ctx.fillStyle = "green";
-    ctx.fillRect(p.x, p.topY, p.width, p.topHeight);
-    ctx.fillRect(p.x, p.bottomY, p.width, p.bottomHeight);
-    if(checkCollision(bird, p)) gameOver();
+function drawPillars() {
+  ctx.fillStyle = "green";
+  pillars.forEach(p => {
+    ctx.fillRect(p.x, 0, p.width, p.top);
+    ctx.fillRect(p.x, canvas.height - p.bottom, p.width, p.bottom);
+  });
+}
+
+function update() {
+  if (isGameOver) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  bird.dy += gravity;
+  bird.y += bird.dy;
+
+  if (frame % 120 === 0) {
+    let top = Math.random() * 150 + 50;
+    let bottom = canvas.height - top - 120;
+    pillars.push({ x: canvas.width, width: 40, top, bottom });
   }
+
+  pillars.forEach(p => p.x -= 2);
+
   pillars = pillars.filter(p => p.x + p.width > 0);
 
-  // Check top/bottom
-  if(bird.y + bird.height > canvas.height || bird.y < 0) gameOver();
+  pillars.forEach(p => {
+    if (
+      bird.x < p.x + p.width &&
+      bird.x + bird.width > p.x &&
+      (bird.y < p.top || bird.y + bird.height > canvas.height - p.bottom)
+    ) {
+      gameOver();
+    }
+  });
+
+  if (bird.y + bird.height > canvas.height || bird.y < 0) {
+    gameOver();
+  }
+
+  drawBird();
+  drawPillars();
 
   frame++;
-  requestAnimationFrame(gameLoop);
+  requestAnimationFrame(update);
 }
 
-// Game Over
 function gameOver() {
   isGameOver = true;
-  restartBtn.style.display = 'block';
+  restartBtn.style.display = "block";
 }
 
+document.addEventListener("keydown", () => {
+  bird.dy = jump;
+});
+
+restartBtn.onclick = () => {
+  initGame();
+  update();
+};
+
 initGame();
+update();
 </script>
 
 </body>
