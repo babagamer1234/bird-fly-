@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simple Bird Game</title>
 
-<!-- ✅ Google AdSense Script -->
+<!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6255468902751815"
      crossorigin="anonymous"></script>
 
@@ -42,10 +42,11 @@
     margin-top: 15px;
   }
 
-  .ad-box {
-    margin: 10px 0;
+  .ad-container {
     width: 100%;
-    max-width: 728px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
   }
 </style>
 </head>
@@ -54,22 +55,37 @@
 
 <h1>Simple Bird Game</h1>
 
-<!-- ✅ AdSense Banner Ad -->
-<div class="ad-box">
+<!-- AdSense Banner Top -->
+<div class="ad-container">
   <ins class="adsbygoogle"
        style="display:block"
        data-ad-client="ca-pub-6255468902751815"
-       data-ad-slot="XXXXXXXXXX"
+       data-ad-slot="13623213486"
        data-ad-format="auto"
        data-full-width-responsive="true"></ins>
-  <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
 </div>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 
+<!-- Game Canvas -->
 <canvas id="gameCanvas" width="600" height="400"></canvas>
 <button id="restartBtn">Restart</button>
 
+<!-- AdSense Banner Bottom -->
+<div class="ad-container">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-6255468902751815"
+       data-ad-slot="9223202134"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+</div>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+<!-- Game Script -->
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -85,57 +101,50 @@ function initGame() {
   frame = 0;
   isGameOver = false;
   restartBtn.style.display = "none";
-}
-
-function drawBird() {
-  ctx.fillStyle = "yellow";
-  ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
-}
-
-function drawPillars() {
-  ctx.fillStyle = "green";
-  pillars.forEach(p => {
-    ctx.fillRect(p.x, 0, p.width, p.top);
-    ctx.fillRect(p.x, canvas.height - p.bottom, p.width, p.bottom);
-  });
+  requestAnimationFrame(update);
 }
 
 function update() {
-  if (isGameOver) return;
+  frame++;
+  if(isGameOver) return;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  // Bird physics
   bird.dy += gravity;
   bird.y += bird.dy;
 
-  if (frame % 120 === 0) {
-    let top = Math.random() * 150 + 50;
-    let bottom = canvas.height - top - 120;
-    pillars.push({ x: canvas.width, width: 40, top, bottom });
+  // Add pillars every 90 frames
+  if(frame % 90 === 0) {
+    let gap = 120;
+    let topHeight = Math.random() * (canvas.height - gap - 40) + 20;
+    pillars.push({ x: canvas.width, y: 0, width: 50, height: topHeight });
+    pillars.push({ x: canvas.width, y: topHeight + gap, width: 50, height: canvas.height - topHeight - gap });
   }
 
-  pillars.forEach(p => p.x -= 2);
+  // Move pillars
+  for(let p of pillars) {
+    p.x -= 2;
+  }
 
-  pillars = pillars.filter(p => p.x + p.width > 0);
-
-  pillars.forEach(p => {
-    if (
-      bird.x < p.x + p.width &&
-      bird.x + bird.width > p.x &&
-      (bird.y < p.top || bird.y + bird.height > canvas.height - p.bottom)
-    ) {
+  // Collision detection
+  for(let p of pillars) {
+    if(bird.x < p.x + p.width && bird.x + bird.width > p.x &&
+       bird.y < p.y + p.height && bird.y + bird.height > p.y) {
       gameOver();
     }
-  });
-
-  if (bird.y + bird.height > canvas.height || bird.y < 0) {
-    gameOver();
   }
 
-  drawBird();
-  drawPillars();
+  if(bird.y + bird.height > canvas.height || bird.y < 0) gameOver();
 
-  frame++;
+  // Draw
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = "yellow";
+  ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+
+  ctx.fillStyle = "green";
+  for(let p of pillars) {
+    ctx.fillRect(p.x, p.y, p.width, p.height);
+  }
+
   requestAnimationFrame(update);
 }
 
@@ -144,17 +153,14 @@ function gameOver() {
   restartBtn.style.display = "block";
 }
 
-document.addEventListener("keydown", () => {
-  bird.dy = jump;
+canvas.addEventListener("click", () => {
+  if(!isGameOver) bird.dy = jump;
 });
 
-restartBtn.onclick = () => {
-  initGame();
-  update();
-};
+restartBtn.addEventListener("click", () => initGame());
 
+// Start the game
 initGame();
-update();
 </script>
 
 </body>
